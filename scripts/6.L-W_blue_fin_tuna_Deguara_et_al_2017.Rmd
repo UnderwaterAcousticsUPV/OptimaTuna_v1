@@ -1,0 +1,145 @@
+---
+title: 'INFORME 0: OptimaTUNA - L-W model Deguara et al. 2017'
+author: "Sergio Morell-Monzó"
+date: "15/12/2022"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r load required libraries, include=FALSE}
+library(readxl)
+```
+
+```{r Load data, include=FALSE}
+# Inspectores
+df_rel_insp <- read_excel("C:/Users/sergi/Desktop/OptimaTUNA/data/test_borrar/Relacion_L_Kg_Inspectores.xlsx")
+# UPV
+df_rel_upv <- read_excel("C:/Users/sergi/Desktop/OptimaTUNA/data/test_borrar/Relacion_L_Kg_UPV.xlsx")
+# Merge datasets (Inspectores + UPV)
+df_all <- rbind(df_rel_insp, df_rel_upv)
+```
+
+Las relaciones talla-peso (L-W) de los inspectores y de la UPV no son independientes al modelo Deguara et al. 2017. Es decir, estos no son datos reales de L medida y W medido, sino que se han obtenido a partir del modelo Deguara et al. 2017. Por tanto, no pueden utilizarse estos datos para evaluar el rendimiento del modelo en estas muestras.
+
+#### Deguara, S. et al. (2017) Determination of a length-weight equation applicable to Atlantic Bluefin Tuna (Thunnus Thynnus) during the purse seine fishing season in the Mediterranea. Collect. Vol. Sci. Pap. ICCAT, 73(7): 2324-2332
+#### https://www.iccat.int/Documents/CVSP/CV073_2017/n_7/CV073072324.pdf
+
+Resumen:
+Un uso importante de la ecuación talla-peso (L-W) para el atún rojo del Atlántico, Thunnus thynnus, es convertir la longitud a la horquilla recta (SFL) medida con estereocámaras durante la introducción en jaulas de atún rojo en peso capturado (RWT). La bibliografía y otros datos disponibles indicaron que el uso de las relaciones L-W de ICCAT más recientes sobrestiman el RWT atribuido a un SFL particular, lo que daría lugar a una sobrestimación significativa del peso de captura real. Se llevó a cabo una revisión de las relaciones L-W publicadas y un análisis de algunos datos nuevos con el objetivo final de proporcionar una ecuación L-W que se utilice para convertir los datos SFL de atún rojo capturado durante la temporada de pesca con redes de cerco y transferidos a jaulas a RWT. Se determinó una nueva ecuación aplicable al mar Mediterráneo durante los meses de mayo y junio: RWT = (2,8684x10-5) x (SFL)2,9076. Esta ecuación es más representativa de las ecuaciones encontradas en la literatura que las propuestas por las ecuaciones actuales de ICCAT, y se recomienda utilizar esta nueva ecuación para la conversión de datos SFL de cámaras estereoscópicas a RWT.
+
+# Equation (empirical):
+# Y = 0.000028684 * X^2.907552726
+
+```{r Prepare plot layout, include=FALSE}
+par(mfrow=c(1,1))
+```
+
+## Plot 1: Relación entre longitud y peso
+## 650x650
+
+```{r Plot 1, include=TRUE}
+windowsFonts(FAM=windowsFont('Arial'))
+plot(df_rel_insp$L_m*100, df_rel_insp$W_Kg,
+     main= substitute(paste('Relación entre longitud y peso (L-W) en ', italic('Thunnus thynnus'))),
+     las=1,
+     xlab='Longitud [cm]', cex.lab=1.4,
+     ylab='Peso [Kg]', cex.lab=1.4,
+     tck=0.02,
+     pch=19, cex=2,
+     col='dodgerblue1',
+     family='FAM')
+#grid(NULL, NULL, lty=1)
+points(df_rel_upv$L_m*100, df_rel_upv$W_Kg,
+       pch=19, cex=2,
+       col='goldenrod1',
+       family='FAM')
+#abline(lm, lwd=2)
+
+curve(0.000028684*x^2.907552726, lwd=2, add=TRUE)
+
+legend(185, 170,
+  legend=c("L-W Deguara et al. 2017"),
+  col=c('black'),
+  lty=1, lwd=3, cex=1.2, bty='n'
+)
+legend(185, 160, 
+       legend=c("Inspectores", "UPV"),
+       col=c("dodgerblue1", "goldenrod1"), 
+       pch=c(19), cex=1.2,  bty = "n")
+text(200, 115, cex=0.65,
+     "Deguara, S. et al. (2017) Determination of a length-weight equation applicable 
+     to Atlantic Bluefin Tuna (Thunnus thynnus) during the purse seine fishing season in the Mediterranean.
+     Collect. Vol. Sci. Pap. ICCAT, 73(7): 2324-2332")
+```
+
+## Plot 2: Posición de la muestra dentro de la curva Deguara et al. 20217
+## 650x650
+
+```{r Plot 2, include=TRUE}
+curve(0.000028684*x^2.907552726, 
+      xlim=c(50, 300), 
+      lwd=2, las=1, tck=0.02,
+      col="black",
+      main="Posición de la muestra dentro de \n la curva Deguara et al. 2017",
+      xlab="Longitud [cm]", ylab="Peso [Kg]",
+      cex.lab=1.4, cex.lab=1.4)
+
+points(df_rel_insp$L_m*100, df_rel_insp$W_Kg,
+       pch=19, cex=1,
+       col='dodgerblue1',
+       family='FAM')
+
+points(df_rel_upv$L_m*100, df_rel_upv$W_Kg,
+       pch=19, cex=1,
+       col='goldenrod1',
+       family='FAM')
+legend(50, 425, legend=c("L-W Deguara et al. 2017"), col=c('black'),
+       lty=1, lwd=3, cex=1.2, bty='n')
+text(120, 360, "Y = 28684(10^-5)X^2.907552726")
+legend(50, 320, 
+       legend=c("Inspectores", "UPV"),
+       col=c("dodgerblue1", "goldenrod1"), 
+       pch=c(19), cex=1.2,  bty = "n")
+```
+
+## Plot 3: Plot 2 (zoom)
+# 650x650
+
+```{r Plot 3, include=TRUE}
+curve(0.000028684*x^2.907552726, 
+      xlim=c(150, 250), 
+      lwd=2, las=1, tck=0.02,
+      col="black",
+      main="Relación L-W Deguara et al. 20217",
+      xlab="Longitud [cm]", ylab="Peso [Kg]",
+      cex.lab=1.4, cex.lab=1.4)
+
+points(df_rel_insp$L_m*100, df_rel_insp$W_Kg,
+       pch=19, cex=1.5,
+       col='dodgerblue1',
+       family='FAM')
+
+points(df_rel_upv$L_m*100, df_rel_upv$W_Kg,
+       pch=19, cex=1.5,
+       col='goldenrod1',
+       family='FAM')
+legend(150, 250, legend=c("L-W Deguara et al. 2017"), col=c('black'),
+       lty=1, lwd=3, cex=1.2, bty='n')
+text(180, 220, "Y = 28684(10^-5)X^2.907552726")
+legend(150, 200, 
+       legend=c("Inspectores", "UPV"),
+       col=c("dodgerblue1", "goldenrod1"), 
+       pch=c(19), cex=1.2,  bty = "n")
+
+```
+
+Objetivos:
+
+1) Obtener una equación L-W más adecuada para las condiciones de crianza de Balfego.
+2) Obtener una equación L-H-W que puede ser más adecuada.

@@ -1,0 +1,18 @@
+---
+title: "Fultons Condition Factor with Tukeys outlier detection"
+author: "Sergio Morell-Monzó"
+date: '2023-01-16'
+output: html_document
+---
+
+The method is based on the use of the Fulton’s Condition Factor K (Ricker, 1975), which is calculated as:
+
+K = 105 * RWT/FL3
+
+where RWT = Round Weight in kg and FL = Fork Length in cm.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Ricker, W. E. 1975. Computation and interpretation of biological statistics of fish populations. Bull. Fish. Bd. Canada, 191: 1-382.
